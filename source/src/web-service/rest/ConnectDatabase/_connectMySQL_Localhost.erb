@@ -1,0 +1,5 @@
+    $dsn = "mysql:dbname=rmr_db;host=localhost;charset=UTF8";
+    $username = "root";
+    $password = "";
+    $pdo_mysql = new PDO($dsn, $username, $password);
+    $db_mysql = new NotORM($pdo_mysql);

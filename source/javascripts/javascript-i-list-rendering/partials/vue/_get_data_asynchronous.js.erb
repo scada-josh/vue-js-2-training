@@ -1,0 +1,111 @@
+Vue.component('story', {
+	template: "#template-story-raw",
+	props: ['story'],
+	methods: {
+		upvoteStory: function(story) {
+			story.upvotes++;
+			// $.ajax({
+			// 	url: '../../../web-service/rest/VueJS2BookManager/stories/'+story.id,
+			// 	type: 'PUT',
+			// 	data: story,
+			// });
+
+			// this.$http.put('../../../web-service/rest/VueJS2BookManager/stories/'+story.id , story);
+
+			this.$http({
+				url: '../../../web-service/rest/VueJS2BookManager/stories/' + story.id,
+				method: 'PUT',
+				body: story
+			});
+		},
+		editStory: function(story){ 
+			story.editing=true;
+		},
+		updateStory: function(story){
+            this.$http.put('../../../web-service/rest/VueJS2BookManager/stories/'+story.id , story)
+            //Set editing to false to show actions again and hide the inputs
+            story.editing = false;
+		},
+		deleteStory: function(story) {
+			// find story
+
+			var index = vm.stories.indexOf(story); // delete it
+				// console.log(vm.stories);
+			vm.stories.splice(index, 1);
+
+			// make DELETE request
+			// $.ajax({
+			// 	url: '../../../web-service/rest/VueJS2BookManager/stories/'+story.id,
+			// 	type: 'DELETE'
+			// });
+
+			// this.$http.delete('../../../web-service/rest/VueJS2BookManager/stories/'+story.id)
+
+			this.$http({
+				url: '../../../web-service/rest/VueJS2BookManager/stories/'+story.id,
+				method: 'DELETE'
+			});
+		},
+		storeStory: function(story){ 
+			this.$http.post('../../../web-service/rest/VueJS2BookManager/stories', story)
+				.then(function(response) {
+					story.editing = false; 
+					Vue.set(story, 'id', response.data.id);
+					// vm.fetchStories();
+				});
+		}
+	}
+});
+
+
+var vm = new Vue({
+	el: '#app',
+	data: {
+		stories: []
+	}, 
+	mounted: function() {
+		// $.get('../../../web-service/rest/VueJS2BookManager/stories', function(data) {
+		// 	vm.stories = data;
+		// })
+
+		this.$http({
+				url: '../../../web-service/rest/VueJS2BookManager/stories', 
+				method: 'GET'
+			})
+			.then(function (response) {
+				// Vue.set(vm, 'stories', response.data) // Or we as we did before
+
+				var storiesReady = response.data.map(function(story){ 
+					story.editing = false;
+					return story
+				});
+				Vue.set(vm, 'stories', storiesReady)
+				
+			})
+	},
+	methods: {
+		createStory: function(){
+			var newStory={ 
+					"plot": "",
+					"upvotes": 0,
+					"editing": true 
+				};
+				
+			this.stories.push(newStory);
+		},
+		fetchStories: function () {
+			this.$http.get('../../../web-service/rest/VueJS2BookManager/stories')
+					  .then(function (response) {
+						// Vue.set(vm, 'stories', response.data) // Or we as we did before
+
+						var storiesReady = response.data.map(function(story){ 
+							story.editing = false;
+							return story
+						});
+						Vue.set(vm, 'stories', storiesReady)
+						
+					  })
+		}
+	}
+})
+

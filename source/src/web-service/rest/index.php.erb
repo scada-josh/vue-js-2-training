@@ -1,0 +1,74 @@
+---
+title: Learning Vue.js
+layout: "layout-api"
+---
+
+<?php
+ 
+    date_default_timezone_set("Asia/Bangkok");
+ 
+    require_once '../../../packages/autoload.php';
+ 
+    // Create and configure Slim app
+    /* Slim framework 2.x */
+    // $app = new \Slim\Slim();
+    $logWriter = new \Slim\LogWriter(fopen('./api-debug.log', 'a'));
+    $app = new \Slim\Slim(array('log.enabled' => true,
+                                'log.writer' => $logWriter,
+                                'debug' => true));
+
+
+<% if config[:phase_environment] == "Development" %>
+
+    /* Connect Database Manager Partial : Localhost */
+    <%= partial "/ConnectDatabase/_connectDB2_Localhost" %>
+    <%= partial "/ConnectDatabase/_connectMySQL_Localhost" %>
+    <%= partial "/ConnectDatabase/_connectSQLite_Localhost" %>
+
+<% elsif config[:phase_environment] == "Test" %>
+
+    /* Connect Database Manager Partial : Localhost */
+    <%= partial "/ConnectDatabase/_connectDB2_Localhost" %>
+    <%= partial "/ConnectDatabase/_connectMySQL_Localhost" %>
+    <%= partial "/ConnectDatabase/_connectSQLite_Localhost" %>
+
+<% elsif config[:phase_environment] == "Production" %>
+
+    /* Connect Database Manager Partial : Production */
+    <%= partial "/ConnectDatabase/_connectDB2_Production" %>
+    <%= partial "/ConnectDatabase/_connectMySQL_Production" %>
+    <%= partial "/ConnectDatabase/_connectSQLite_Production" %>
+
+<% end %>
+
+
+
+    /* Test Manager */
+    $app->get('/testManager/getMsg/:name',function($name) use ($app) { getMsg($app, $name); });
+
+    /* VueJS2Book Manager */
+    $app->get('/VueJS2BookManager/stories',function() use ($app, $db_sqlite) { stories_fetchAll($app, $db_sqlite); });
+    $app->get('/VueJS2BookManager/stories/:id',function($id) use ($app, $db_sqlite) { stories_fetchByStory($app, $db_sqlite, $id); });
+    $app->post('/VueJS2BookManager/stories',function() use ($app, $db_sqlite) { stories_createStory($app, $db_sqlite); });
+    $app->put('/VueJS2BookManager/stories/:id',function($id) use ($app, $db_sqlite) { stories_updateStory($app, $db_sqlite, $id); });
+    $app->delete('/VueJS2BookManager/stories/:id',function($id) use ($app, $db_sqlite) { stories_deleteStory($app, $db_sqlite, $id); });
+
+
+
+
+ 
+    // Run app
+    $app->run();
+ 
+    /* Test Manager Partial */
+    <%= partial "/TestManager/_getMsg" %>
+
+    /* VueJS2Book Manager */
+    <%= partial "/VueJS2BookManager/_stories_fetchAll" %>
+    <%= partial "/VueJS2BookManager/_stories_fetchByStory" %>
+    <%= partial "/VueJS2BookManager/_stories_createStory" %>
+    <%= partial "/VueJS2BookManager/_stories_updateStory" %>
+    <%= partial "/VueJS2BookManager/_stories_deleteStory" %>
+
+
+?>

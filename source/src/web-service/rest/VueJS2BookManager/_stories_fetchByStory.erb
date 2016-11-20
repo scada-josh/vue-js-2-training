@@ -1,0 +1,38 @@
+    /**
+     *
+     * @apiName StoriesFetchByStory
+     * @apiGroup VueJS2Book Manager
+     * @apiVersion 0.1.0
+     *
+     * @api {get} /VueJS2BookManager/stories/:id Stories Fetch By Story ID(v 0.1.0)
+     * @apiDescription คำอธิบาย : ในส่วนนี้ทำหน้าที่ดึงข้อมูล Stories ตาม story ID ที่ระบุ
+     *
+     *
+     * @apiParam {String} name     New name of the user
+     *
+     * @apiSampleRequest /VueJS2BookManager/stories/:id
+     *
+     * @apiSuccess {String} msg แสดงข้อความทักทายผู้ใช้งาน
+     *
+     * @apiSuccessExample Example data on success:
+     * {
+     *   "msg": "Hello, anusorn"
+     * }
+     *
+     * @apiError UserNotFound The <code>id</code> of the User was not found.
+     * @apiErrorExample {json} Error-Response:
+     *     HTTP/1.1 404 Not Found
+     *     {
+     *       "error": "UserNotFound"
+     *     }
+     *
+     */
+
+    function stories_fetchByStory($app, $db_sqlite, $id) {
+
+        $results = $db_sqlite->stories->where("id = ?", $id);
+ 
+ 
+        $app->response()->header("Content-Type", "application/json");
+        echo json_encode($results);
+    };

@@ -1,0 +1,54 @@
+    /**
+     *
+     * @apiName StoriesFetchAll
+     * @apiGroup VueJS2Book Manager
+     * @apiVersion 0.1.0
+     *
+     * @api {get} /VueJS2BookManager/stories Stories Fetch All(v 0.1.0)
+     * @apiDescription คำอธิบาย : ในส่วนนี้ทำหน้าที่ดึงข้อมูล Stories ทั้งหมด
+     *
+     *
+     * @apiParam {String} name     New name of the user
+     *
+     * @apiSampleRequest /VueJS2BookManager/stories
+     *
+     * @apiSuccess {String} msg แสดงข้อความทักทายผู้ใช้งาน
+     *
+     * @apiSuccessExample Example data on success:
+     * {
+     *   "msg": "Hello, anusorn"
+     * }
+     *
+     * @apiError UserNotFound The <code>id</code> of the User was not found.
+     * @apiErrorExample {json} Error-Response:
+     *     HTTP/1.1 404 Not Found
+     *     {
+     *       "error": "UserNotFound"
+     *     }
+     *
+     */
+
+    function stories_fetchAll($app, $db_sqlite) {
+
+        $request = $app->request;
+        $response = $app->response;
+
+        $app->log->debug('Request path: ' . $request->getPathInfo());
+        $app->log->debug('Response status: ' . $response->getStatus());
+
+        /* ************************* */
+        /* เริ่มกระบวนการเชื่อมต่อฐานข้อมูล SQLite */
+        /* ************************* */
+        $reports = array();
+
+        $results = $db_sqlite->stories->order("id ASC");
+
+        foreach ($results as $result) {
+            $reports[] = $result;
+        }
+ 
+ 
+        $app->response()->header("Content-Type", "application/json");
+        echo json_encode($reports);
+
+    };

@@ -1,0 +1,91 @@
+    /**
+     *
+     * @apiName StoriesUpdateStory
+     * @apiGroup VueJS2Book Manager
+     * @apiVersion 0.1.0
+     *
+     * @api {put} /VueJS2BookManager/stories/:id Update Story By ID
+     * @apiDescription คำอธิบาย : ในส่วนนี้ทำหน้าที่อัพเดทข้อมูล Stories ตาม story ID ที่ระบุ
+     *
+     *
+     * @apiParam {String} name     New name of the user
+     *
+     * @apiSampleRequest /VueJS2BookManager/stories/:id
+     *
+     * @apiSuccess {String} msg แสดงข้อความทักทายผู้ใช้งาน
+     *
+     * @apiSuccessExample Example data on success:
+     * {
+     *   "msg": "Hello, anusorn"
+     * }
+     *
+     * @apiError UserNotFound The <code>id</code> of the User was not found.
+     * @apiErrorExample {json} Error-Response:
+     *     HTTP/1.1 404 Not Found
+     *     {
+     *       "error": "UserNotFound"
+     *     }
+     *
+     */
+
+    function stories_updateStory($app, $db_sqlite, $id) {
+
+        /* ************************* */
+        /* เริ่มกระบวนการรับค่าพารามิเตอร์จากส่วนของ Payload ซึ่งอยู่ในรูปแบบ JSON */
+        /* ************************* */
+        $headers = $app->request->headers;
+        $ContetnType = $app->request->headers->get('Content-Type');
+
+        $app->log->debug('ContetnType: ' . $ContetnType);
+
+        /**
+        * apidoc @apiSampleRequest, iOS RESTKit use content-type is "application/json"
+        * Web Form, Advance REST Client App use content-type is "application/x-www-form-urlencoded"
+        */
+        if (($ContetnType == "application/json") || ($ContetnType == "application/json; charset=utf-8") || ($ContetnType == "application/json;charset=UTF-8")) {
+
+            $request = $app->request();
+            $result = json_decode($request->getBody());
+
+            /* receive request */
+            $postPlot = $result->plot;
+            $postUpvotes = $result->upvotes;
+            $postWriter = $result->writer;
+
+        } else if (($ContetnType == "application/x-www-form-urlencoded") || ($ContetnType == "application/x-www-form-urlencoded; charset=UTF-8")){
+
+            //$userID = $app->request()->params('userID_param');
+            //$userID = $app->request()->post('userID_param');
+
+            $postPlot = $app->request()->post('plot');
+            $postUpvotes = $app->request()->post('upvotes');
+            $postWriter = $app->request()->post('writer');
+        }
+
+
+        /* ************************* */
+        /* เริ่มกระบวนการเชื่อมต่อฐานข้อมูล SQLite */
+        /* ************************* */
+        $story = $db_sqlite->stories[$id];
+        if ($story) {
+            $data = array(
+                "plot" => $postPlot,
+                "upvotes" => $postUpvotes,
+                "writer" => $postWriter,
+                "updated_at" => date("Y-m-d H:i:s")
+            );
+            $result = $story->update($data);
+        } else {
+            $result = "";
+        }
+
+        if ($result) {
+            $msg = "success";
+        } else {
+            $msg = "failure";
+        }
+
+ 
+        $app->response()->header("Content-Type", "application/json");
+        echo json_encode($msg);
+    };
